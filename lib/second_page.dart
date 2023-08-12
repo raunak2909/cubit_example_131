@@ -5,7 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cubit/counter_cubit.dart';
 
 class SeconsPage extends StatelessWidget {
-  const SeconsPage({super.key});
+  var titleController = TextEditingController();
+  var descController = TextEditingController();
 
 
   @override
@@ -19,24 +20,37 @@ class SeconsPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            TextField(
+              controller: titleController,
             ),
-            BlocBuilder<CounterCubit, CounterState>(builder: (context, state){
-              return Text(
-                '${state.count}',
-                style: Theme.of(context).textTheme.headlineMedium,
-              );
-            })
+
+            SizedBox(
+              height: 11,
+            ),
+
+            TextField(
+              controller: descController,
+            ),
+
+            SizedBox(
+              height: 11,
+            ),
+
+            ElevatedButton(onPressed: (){
+              var title = titleController.text.toString();
+              var desc = descController.text.toString();
+
+              if(title!="" && desc!=""){
+                context.read<CounterCubit>().addData({
+                  'title':title,
+                  'desc':desc
+                });
+              }
+
+            }, child: Text('Add'))
+
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          BlocProvider.of<CounterCubit>(context).incrementCount();
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

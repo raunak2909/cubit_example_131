@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(
-      BlocProvider(
+  runApp(BlocProvider(
     create: (context) => CounterCubit(),
     child: const MyApp(),
   ));
@@ -28,7 +27,24 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    //your work
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    //your work
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,43 +53,59 @@ class MyHomePage extends StatelessWidget {
         title: Text('Cubit'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+        child:
             BlocBuilder<CounterCubit, CounterState>(builder: (context, state) {
-              return Text(
-                '${state.count}',
-                style: Theme.of(context).textTheme.headlineMedium,
-              );
-            })
-          ],
-        ),
+          if (state.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state.isError) {
+            return Center(
+              child: Text(
+                state.errorMsg,
+                style: TextStyle(fontSize: 25),
+              ),
+            );
+          } else {
+            return state.arrData.isNotEmpty
+                ? ListView.builder(
+                    itemCount: state.arrData.length,
+                    itemBuilder: (_, index) {
+                      return ListTile(
+                        leading: Text('${index + 1}'),
+                        title: Text('${state.arrData[index]['title']}'),
+                        subtitle: Text('${state.arrData[index]['desc']}'),
+                        trailing: InkWell(
+                            onTap: () {
+                              context.read<CounterCubit>().deleteData(index);
+                              //BlocProvider.of<CounterCubit>(context).deleteData(index);
+                            },
+                            child: Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            )),
+                      );
+                    })
+                : Center(
+                    child: Text('No Data Found!!'),
+                  );
+          }
+        }),
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          FloatingActionButton(
-            onPressed: () {
-              context.read<CounterCubit>().decrementCount();
-            },
-            tooltip: 'Decrement',
-            child: const Icon(Icons.remove),
-          ),
-          FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SeconsPage(),
-                  ));
-            },
-            tooltip: 'Next Page',
-            child: const Icon(Icons.arrow_forward_ios),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context
+              .read<CounterCubit>()
+              .addData({'title': "Hello", 'desc': "How are you"});
+
+          /*Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SeconsPage(),
+              ));*/
+        },
+        tooltip: 'Next Page',
+        child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
